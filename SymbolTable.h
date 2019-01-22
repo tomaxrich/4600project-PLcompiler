@@ -33,7 +33,7 @@ class SymbolTable
 		/** Default constructor */
 		SymbolTable():occupied(0), htable(TABLESIZE){loadReserve();};
 		/** Default destructor */
-		~SymbolTable(){};
+		~SymbolTable();
 
 		//init table with reserved words
 		void loadReserve();

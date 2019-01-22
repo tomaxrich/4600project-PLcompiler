@@ -2,7 +2,7 @@
 #include "SymbolTable.h"
 
 using namespace std;
-
+SymbolTable::~SymbolTable(){}
 ///to do : call this in admin instead of constructor
 //Inserts PL reserve words into the symbol table.
 void SymbolTable::loadReserve(){

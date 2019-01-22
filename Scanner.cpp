@@ -21,8 +21,10 @@ Scanner::Scanner(ifstream&in, SymbolTable &sym)
 	errorCount = 0;
 }
 
-Scanner::~Scanner()
-{}
+Scanner::~Scanner(){
+//inputfileptr = nullptr;
+//symtableptr = nullptr;
+}
 
 //GetToken, modified to return token* due to turning tokens into an inherited class structure rather than the provided one class with a struct. Checks the first char of the ifstream for type, then determines which recognizer to call.
 Token* Scanner::getToken()

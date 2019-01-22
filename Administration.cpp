@@ -21,9 +21,9 @@ Administration::Administration(ifstream& in, ofstream &out, Scanner &sc)
 };
 
 Administration::~Administration(){
-   delete inputfileptr;
-   delete outputfileptr;
-   delete scannerptr;
+   //delete inputfileptr;
+   //delete outputfileptr;
+   //delete scannerptr;
 }
 
 int Administration::scan()
@@ -66,12 +66,11 @@ int Administration::scan()
       while(inputfileptr->peek() == '\n'){
          NewLine();
          inputfileptr->get();
-      }
-      delete tok;
+      }      
 	}
 
 	outputfileptr->close();
-   delete inputfileptr;
+   	
 	return 0;
 };
 
