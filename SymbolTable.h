@@ -31,7 +31,7 @@ class SymbolTable
 {
 	public:
 		/** Default constructor */
-		SymbolTable():occupied(0), htable(TABLESIZE){loadReserve();};
+		SymbolTable();
 		/** Default destructor */
 		~SymbolTable();
 
@@ -39,10 +39,9 @@ class SymbolTable
 		void loadReserve();
 
 		int search(string lex);
-		int insert(string lex);
 
 //		int search(NameToken *tok);
-		int insert(NameToken *tok);
+		int insert(NameToken* tok);
 
 		bool full(){return occupied == TABLESIZE;};
 
