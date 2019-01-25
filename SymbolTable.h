@@ -42,7 +42,7 @@ class SymbolTable
 		int insert(string lex);
 
 //		int search(NameToken *tok);
-//		int insert(NameToken *tok);
+		int insert(NameToken *tok);
 
 		bool full(){return occupied == TABLESIZE;};
 
@@ -54,8 +54,8 @@ class SymbolTable
 
 	private:
 	   int occupied;
-		vector<string> htable;      //hash table for just strings
-		//vector<NameToken*> htable; 	//hash table that uses tokens
+		//vector<string> htable;      //hash table for just strings
+		vector<NameToken*> htable; 	//hash table that uses tokens
 		int hashfunc(string lexeme); 	//hash function
 };
 

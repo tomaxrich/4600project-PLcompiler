@@ -2,29 +2,32 @@
 #include "SymbolTable.h"
 
 using namespace std;
-SymbolTable::~SymbolTable(){}
-///to do : call this in admin instead of constructor
+SymbolTable::~SymbolTable(){
+	for(int i = 0; i < TABLESIZE; i++){
+		delete htable[i];
+		htable[i] = nullptr;
+	}
+}
+
 //Inserts PL reserve words into the symbol table.
 void SymbolTable::loadReserve(){
-
-	insert("begin");
-	insert("end");
-	insert("const");
-	insert("array");
-	insert("integer");
-	insert("Boolean");
-	insert("proc");
-	insert("skip");
-	insert("read");
-	insert("write");
-	insert("call");
-    insert("if");
-	insert("do");
-	insert("fi");
-	insert("od");
-	insert("false");
-	insert("true");
-
+	insert(new NameToken(KW_BEGIN, -1, "begin"));
+	insert(new NameToken(KW_END, -1, "end"));
+	insert(new NameToken(KW_CONST, -1, "const"));
+	insert(new NameToken(KW_ARRAY, -1, "array"));
+	insert(new NameToken(KW_INTEGER, -1, "integer"));
+	insert(new NameToken(KW_BOOLEAN, -1, "Boolean"));
+	insert(new NameToken(KW_PROC, -1, "proc"));
+	insert(new NameToken(KW_SKIP, -1, "skip"));
+	insert(new NameToken(KW_READ, -1, "read"));
+	insert(new NameToken(KW_WRITE, -1, "write"));
+	insert(new NameToken(KW_CALL, -1, "call"));
+	insert(new NameToken(KW_IF, -1, "if"));
+	insert(new NameToken(KW_DO, -1, "do"));
+	insert(new NameToken(KW_FI, -1, "fi"));
+	insert(new NameToken(KW_OD, -1, "od"));
+	insert(new NameToken(KW_FALSE, -1, "false"));
+	insert(new NameToken(KW_TRUE, -1, "true"));
 }
 
 //search the symbol table for a given lexeme, return position if found, -1 if not
@@ -33,52 +36,19 @@ int SymbolTable::search(string lex){
 	int hash = hashfunc(lex);
 	int done = hash; //if the table is full, keep track of where the search started in case the lexeme is not found
 
-	if(htable[hash] == ""){ //not found
-		return -1;
-	} else if(htable[hash] == lex){
-		return hash;
-	} else { //look at the next table entry
-		++hash;
-		if(hash == done) return -1; //finish search if the entire table has been looked at
-		if(hash == TABLESIZE) hash = 0; //wrap to 0 if max size reached
-	}
-	/*
-	//for using full tokens
 	if(htable[hash]->getLexeme() == ""){ //not found
 		return -1;
-	} else if(htable[hash]->getLexeme() == lex){ //found
+	} else if(htable[hash]->getLexeme() == lex){ //if the found token matches the given lexeme
 		return hash;
 	} else { //look at the next table entry
 		++hash;
 		if(hash == done) return -1; //finish search if the entire table has been looked at
 		if(hash == TABLESIZE) hash = 0; //wrap to 0 if max size reached
 	}
-	*/
+
 	return -1;
 }
 
-//insert a given lexeme into the table
-//this is mostly for the initial scanning phase, will insert tokens in future phases
-int SymbolTable::insert(string lex){
-
-	int hash = hashfunc(lex);
-
-	while(htable[hash] != ""){
-		if(htable[hash] == lex) //if the lexeme matches (in the scope) then don't add it to the table but return
-         return hash;
-      ++hash;
-		if(hash == TABLESIZE)
-			hash = 0;
-	}
-
-   //insert into the table
-   htable[hash] = lex;
-   ++occupied;
-   return hash;
-}
-
-/// TOKENS ///
-//
 //int SymbolTable::search(NameToken *tok){
 //
 //	int hash = hashfunc(tok->getLexeme());
@@ -90,25 +60,27 @@ int SymbolTable::insert(string lex){
 //		return hash;
 //
 //}
-//
-//int SymbolTable::insert(NameToken *tok){
-//
-//	int hash = hashfunc(tok->getLexeme());
-//
-//	while(htable[hash]->getLexeme() != ""){
-//      if(htable[hash]->getLexeme() == tok->getLexeme())
-//         return hash;
-//		++hash;
-//		if(hash == TABLESIZE)
-//			hash = 0;
-//	}
-//	htable[hash] = tok;
-//
-//	++occupied;
-//	return hash;
-//}
 
-/// tokens done ///
+int SymbolTable::insert(NameToken *tok){
+
+	int hash = hashfunc(tok->getLexeme());
+
+	//find open cell for the lexeme
+	while(htable[hash]->getLexeme() != ""){
+      if(htable[hash]->getLexeme() == tok->getLexeme())
+         return hash;
+		++hash;
+		if(hash == TABLESIZE)
+			hash = 0;
+	}
+
+	if(!full()){
+	htable[hash] = tok;
+	tok->setPosition(hash);
+	++occupied;
+	}
+	return hash;
+}
 
 //djb2 hash function
 int SymbolTable::hashfunc(string lexeme){
@@ -125,7 +97,7 @@ int SymbolTable::hashfunc(string lexeme){
 void SymbolTable::printTable(){
 
 	for(int i = 0; i < TABLESIZE; ++i){
-		cout << i << " = " << htable[i] << endl;
+		cout << i << " = " << htable[i]->getLexeme();
 	}
 
 }
