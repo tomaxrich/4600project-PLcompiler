@@ -7,6 +7,7 @@ SymbolTable::SymbolTable():occupied(0), htable(TABLESIZE){
 	for(int i = 0; i < TABLESIZE; i++){
 		htable[i] = nullptr;
 	}
+	loadReserve();
 }
 
 
@@ -93,7 +94,10 @@ int SymbolTable::hashfunc(string lexeme){
 void SymbolTable::printTable(){
 
 	for(int i = 0; i < TABLESIZE; ++i){
-		cout << i << " = " << htable[i]->getLexeme();
+		if(htable[i] == nullptr)
+			cout << i << " = " << "--NULL--" << endl;
+		else
+			cout << i << " = " << htable[i]->getLexeme() << endl;
 	}
 
 }
