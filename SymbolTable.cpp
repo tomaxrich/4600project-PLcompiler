@@ -4,13 +4,11 @@
 using namespace std;
 
 SymbolTable::SymbolTable():occupied(0), htable(TABLESIZE){
-
 	for(int i = 0; i < TABLESIZE; i++){
-		htable[i] = nullptr; //make sure everything is null until asigned
+		htable[i] = nullptr;
 	}
-loadReserve();
-
 }
+
 
 SymbolTable::~SymbolTable(){
 	for(int i = 0; i < TABLESIZE; i++){
@@ -46,7 +44,7 @@ int SymbolTable::search(string lex){
 	int hash = hashfunc(lex);
 	int done = hash; //if the table is full, keep track of where the search started in case the lexeme is not found
 
-	if(htable[hash]->getLexeme() == ""){ //not found
+	if(htable[hash] == nullptr){ //not found
 		return -1;
 	} else if(htable[hash]->getLexeme() == lex){ //if the found token matches the given lexeme
 		return hash;
@@ -59,32 +57,16 @@ int SymbolTable::search(string lex){
 	return -1;
 }
 
-//int SymbolTable::search(NameToken *tok){
-//
-//	int hash = hashfunc(tok->getLexeme());
-//
-//	if(htable[hash]->getLexeme() == ""){
-//		return -1;
-//	}
-//	else
-//		return hash;
-//
-//}
-
 int SymbolTable::insert(NameToken *tok){
 
-	if(full()) return search(tok->getLexeme()); //if the table is full, search for the token in table.
-
 	int hash = hashfunc(tok->getLexeme());
-	int done = hash;
+	if(full()) return search(tok->getLexeme());
 
 	//find open cell for the lexeme
 	while(htable[hash] != nullptr){
-      if(htable[hash]->getLexeme() == tok->getLexeme()){
-         return hash; }
-
+      if(htable[hash]->getLexeme() == tok->getLexeme())
+         return hash;
 		++hash;
-		if(hash == done) return -1; //looked for spot in entire table, did not find space or a matching lexeme
 		if(hash == TABLESIZE)
 			hash = 0;
 	}
@@ -103,7 +85,6 @@ int SymbolTable::hashfunc(string lexeme){
     for (char c : lexeme) {
         hash = (hash << 5) + hash + c;
     }
-
 	hash = hash%TABLESIZE; //adjust the given hash to fit into the table
     return hash;
 }
@@ -112,12 +93,7 @@ int SymbolTable::hashfunc(string lexeme){
 void SymbolTable::printTable(){
 
 	for(int i = 0; i < TABLESIZE; ++i){
-		cout << i << " = ";
-		if(htable[i] == nullptr)
-			cout << "--NULL--" <<endl;
-		else
-			cout << htable[i]->getLexeme() << endl;
+		cout << i << " = " << htable[i]->getLexeme();
 	}
-	cout << endl;
 
 }

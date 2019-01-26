@@ -40,8 +40,7 @@ class SymbolTable
 
 		int search(string lex);
 
-//		int search(NameToken *tok);
-		int insert(NameToken* tok);
+		int insert(NameToken *tok);
 
 		bool full(){return occupied == TABLESIZE;};
 
