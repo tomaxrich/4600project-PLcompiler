@@ -6,7 +6,7 @@ using namespace std;
 SymbolTable::SymbolTable():occupied(0), htable(TABLESIZE){
 
 	for(int i = 0; i < TABLESIZE; i++){
-		htable[i] = nullptr;
+		htable[i] = nullptr; //make sure everything is null until asigned
 	}
 loadReserve();
 
@@ -118,5 +118,6 @@ void SymbolTable::printTable(){
 		else
 			cout << htable[i]->getLexeme() << endl;
 	}
+	cout << endl;
 
 }
