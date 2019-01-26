@@ -1,0 +1,23 @@
+$ Test(s) for bad symbols
+
+@
+#
+?
+{
+}
+%
+!
+`
+"
+'
+$ The output should be:
+$ On line 2 Error  BAD_SYM from ScanE
+$ On line 3 Error  BAD_SYM from ScanE
+$ On line 4 Error  BAD_SYM from ScanE
+$ On line 5 Error  BAD_SYM from ScanE
+$ On line 6 Error  BAD_SYM from ScanE
+$ On line 7 Error  BAD_SYM from ScanE
+$ On line 8 Error  BAD_SYM from ScanE
+$ On line 9 Error  BAD_SYM from ScanE
+$ On line 10 Error BAD_SYM from ScanE
+$ On line 11 Error BAD_SYM from ScanE

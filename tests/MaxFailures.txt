@@ -1,0 +1,37 @@
+$ Test to show that only the ten characters are taken
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+
+$Bad numeral at max number
+10101010100101010101010101001010101010101010010101010010101010
+$bad ID
+_name
+
+$ The following is to reach the max failure limit
+_name  @ @ @ _thisErrorShouldNotReport something good
+_name
+_name
+_name
+_name
+_name
+_name
+_name
+_name
+_name
+
+
+$ The output should be:
+$ On line 2 Warning cut characters
+$ On line 5 Error   BAD_NUM from ScanE
+$ On line 7 Error   BAD_ID  from ScanE
+$ On line 10 Error  BAD_ID  from ScanE
+$ On line 11 Error  BAD_ID  from ScanE
+$ On line 12 Error  BAD_ID  from ScanE
+$ On line 13 Error  BAD_ID  from ScanE
+$ On line 14 Error  BAD_ID  from ScanE
+$ On line 15 Error  BAD_ID  from ScanE
+$ On line 16 Error  BAD_ID  from ScanE
+$ On line 17 Error  BAD_ID  from ScanE
+$ Compiler Quit due to MAXERRORS
+$These do NOT show up because we have reached the max limit
+$ On line 18 Error  BAD_ID  from ScanE
+$ On line 19 Error  BAD_ID  from ScanE

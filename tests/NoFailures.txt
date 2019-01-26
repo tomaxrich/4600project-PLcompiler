@@ -1,0 +1,69 @@
+$ Test to show all valid characters are recognized
+
+a b c d e f g h i j
+k l m n o p q r s t
+u v w x y z A B C D
+E F G H I J K L M N
+O P Q R S T U V W X
+Y Z
+0 1 2 3 4 5 6 7 8 9
+123 0123
+name name NAME na_me
+
+$ only first 10 characters are significant
+
+$ Test to proof the key words are case senseitive 
+boolean Boolean
+$ Test to make sure all valid symbols are recognized
+.
+,
+;
+[
+]
+&
+|
+~
+<
+=
+>
++
+-
+*
+/
+\
+(
+)
+:=
+[]
+->
+
+$ Test for making sure white space is being properly ignored
+.,;[ ]&|~<=>+-*/\() := [] ->
+
+$ Test for proper line ignore after comment
+valid 123 input if end $then there are comments that are ignored, even the @@@@ errors
+
+$ Test for Keywords to work
+begin
+end
+const
+array
+integer
+Boolean
+proc
+skip
+read
+write
+call
+if
+do
+fi
+od
+false
+true
+
+$Test for hash collision : 
+$aB hashes to 90, which happens to be the same as 'call'
+$the symbol table tests for collisions and will insert aB at position 92, since 91 is 'array'
+$attempting to insert aB again will return the correct token in the table
+call array aB aB

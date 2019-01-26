@@ -6,10 +6,10 @@
 #include "Token.h"
 #include "NameToken.h"
 
-#define TABLESIZE 100
+#define TABLESIZE 307
 
 /**
-Currently only supporting keywords and user IDs/names (scannner part of project)
+Stores Token pointers to keywords and user IDs/names (scannner part of project)
 
 later : storing more info, scoping
 
@@ -38,9 +38,11 @@ class SymbolTable
 		//init table with reserved words
 		void loadReserve();
 
-		int search(string lex);
+		//search table for token with given lexeme
+		Token* search(string lex);
 
-		int insert(NameToken *tok);
+		//insert a given name token
+		Token* insert(NameToken* tok);
 
 		bool full(){return occupied == TABLESIZE;};
 
@@ -51,8 +53,7 @@ class SymbolTable
 	protected:
 
 	private:
-	   int occupied;
-		//vector<string> htable;      //hash table for just strings
+		int occupied;			         //number of occupied cells
 		vector<NameToken*> htable; 	//hash table that uses tokens
 		int hashfunc(string lexeme); 	//hash function
 };

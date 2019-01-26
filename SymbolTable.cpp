@@ -1,19 +1,25 @@
+/***
+Author : Jesse Bevans
+For CPSC 4600 Compilers project
+***/
+
 #include <iostream>
 #include "SymbolTable.h"
 
 using namespace std;
 
 SymbolTable::SymbolTable():occupied(0), htable(TABLESIZE){
+
 	for(int i = 0; i < TABLESIZE; i++){
 		htable[i] = nullptr;
 	}
-	loadReserve();
-}
+loadReserve();
 
+}
 
 SymbolTable::~SymbolTable(){
 	for(int i = 0; i < TABLESIZE; i++){
-		delete htable[i];
+		delete htable[i]; //ensure that all the token pointers are properly deleted on destruction
 		htable[i] = nullptr;
 	}
 }
@@ -39,44 +45,50 @@ void SymbolTable::loadReserve(){
 	insert(new NameToken(KW_TRUE, -1, "true"));
 }
 
-//search the symbol table for a given lexeme, return position if found, -1 if not
-int SymbolTable::search(string lex){
+//search the symbol table for a given lexeme, return position if found, nullptr if not
+Token* SymbolTable::search(string lex){
 
 	int hash = hashfunc(lex);
-	int done = hash; //if the table is full, keep track of where the search started in case the lexeme is not found
+	int done = hash - 1; //if the table is full, keep track of where the search started in case the lexeme is not found
 
-	if(htable[hash] == nullptr){ //not found
-		return -1;
-	} else if(htable[hash]->getLexeme() == lex){ //if the found token matches the given lexeme
-		return hash;
-	} else { //look at the next table entry
-		++hash;
-		if(hash == done) return -1; //finish search if the entire table has been looked at
-		if(hash == TABLESIZE) hash = 0; //wrap to 0 if max size reached
+	while(true){
+        if(htable[hash] == nullptr){ //not found
+            return nullptr;
+        } else if(htable[hash]->getLexeme() == lex){ //if the found token matches the given lexeme
+            return htable[hash];
+        } else { //look at the next table entry
+            ++hash;
+            if(hash == done) return nullptr; //finish search if the entire table has been looked at
+            if(hash == TABLESIZE) hash = 0; //wrap to 0 if max size reached
+        }
 	}
 
-	return -1;
+	return nullptr;
 }
 
-int SymbolTable::insert(NameToken *tok){
+//inserts a given name token into the hash table, updates the token's position, returns pointer to the token.
+Token* SymbolTable::insert(NameToken *tok){
+
+	if(full()) return search(tok->getLexeme()); //if the table is full, search for the token in table.
 
 	int hash = hashfunc(tok->getLexeme());
-	if(full()) return search(tok->getLexeme());
 
 	//find open cell for the lexeme
-	while(htable[hash] != nullptr){
-      if(htable[hash]->getLexeme() == tok->getLexeme())
-         return hash;
+	while(htable[hash] != nullptr){ //if cell is not empty
+	if(htable[hash]->getLexeme() == tok->getLexeme()){
+        	return htable[hash];}
+
 		++hash;
 		if(hash == TABLESIZE)
 			hash = 0;
 	}
 
+	//when cell has been found, insert into table and update token's position value
 	htable[hash] = tok;
 	tok->setPosition(hash);
 	++occupied;
 
-	return hash;
+	return htable[hash];
 }
 
 //djb2 hash function
@@ -86,6 +98,7 @@ int SymbolTable::hashfunc(string lexeme){
     for (char c : lexeme) {
         hash = (hash << 5) + hash + c;
     }
+
 	hash = hash%TABLESIZE; //adjust the given hash to fit into the table
     return hash;
 }
@@ -94,10 +107,11 @@ int SymbolTable::hashfunc(string lexeme){
 void SymbolTable::printTable(){
 
 	for(int i = 0; i < TABLESIZE; ++i){
+		cout << i << " = ";
 		if(htable[i] == nullptr)
-			cout << i << " = " << "--NULL--" << endl;
+			cout << "--NULL--" <<endl;
 		else
-			cout << i << " = " << htable[i]->getLexeme() << endl;
+			cout << htable[i]->getLexeme() << endl;
 	}
 
 }

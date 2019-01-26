@@ -1,4 +1,5 @@
-//#include"pch.h"
+//Author: Kevin Watchuk
+//Date: January 18, 2019
 #include <limits>
 #include <iostream>
 #include "Scanner.h"
@@ -21,10 +22,7 @@ Scanner::Scanner(ifstream&in, SymbolTable &sym)
 	errorCount = 0;
 }
 
-Scanner::~Scanner(){
-//inputfileptr = nullptr;
-//symtableptr = nullptr;
-}
+Scanner::~Scanner(){}
 
 //GetToken, modified to return token* due to turning tokens into an inherited class structure rather than the provided one class with a struct. Checks the first char of the ifstream for type, then determines which recognizer to call.
 Token* Scanner::getToken()
@@ -37,12 +35,6 @@ Token* Scanner::getToken()
 	}
 
 	char current = (char)inputfileptr->peek();
-
-	if (current == '$')
-	{
-		recognizeComment();
-		return nullptr;
-	}
 
 	laChar = (char)inputfileptr->peek();
 
@@ -72,6 +64,12 @@ Token* Scanner::getToken()
 
 			laChar = (char)inputfileptr->peek();
 		}
+	}
+
+	if (current == '$')
+	{
+		recognizeComment();
+		return nullptr;
 	}
 
 	if (isAlpha(current) || current == '_')
@@ -149,6 +147,7 @@ Token* Scanner::recognizeName()
 	bool lookingForName = true;
 	char current;
 	string lexeme;
+	Token* t;
 	while (lookingForName)
 	{
 		*inputfileptr >> noskipws >>current;
@@ -158,123 +157,35 @@ Token* Scanner::recognizeName()
 		if ((!isalpha(laChar) && laChar != '_' && !isdigit(laChar)) )
 		{
 			lookingForName = false;
-
 		}
 	}
 
-	int location = -1;
 	Symbol sym = ID;
-
-	if (symtableptr->search(lexeme) == -1)
+	if (lexeme.length() > 10)
 	{
-		location = symtableptr->insert(lexeme);
+		lexeme.resize(10);
 	}
-	else
-	{
-		location = symtableptr->search(lexeme);
-	}
-
-	if (lexeme.length() == 7)
-		{
-			if (lexeme.compare("integer") == 0)
-			{
-				sym = KW_INTEGER;
-			}
-			else if (lexeme.compare("Boolean") == 0)
-			{
-				sym = KW_BOOLEAN;
-			}
-		}
-		else if (lexeme.length() == 5)
-		{
-			if (lexeme.compare("begin") == 0)
-			{
-				sym=KW_BEGIN;
-
-			}
-			else if (lexeme.compare("const") == 0)
-			{
-				sym = KW_CONST;
-			}
-			else if (lexeme.compare("array") == 0)
-			{
-				sym = KW_ARRAY;
-			}
-			else if (lexeme.compare("write") == 0)
-			{
-				sym = KW_WRITE;
-			}
-			else if (lexeme.compare("false") == 0)
-			{
-				sym = KW_FALSE;
-			}
-		}
-		else if (lexeme.length() == 4)
-		{
-			if (lexeme.compare("proc") == 0)
-			{
-				sym = KW_PROC;
-			}
-			else if (lexeme.compare("skip") == 0)
-			{
-				sym = KW_SKIP;
-			}
-			else if (lexeme.compare("call") == 0)
-			{
-				sym = KW_CALL;
-			}
-			else if (lexeme.compare("true") == 0)
-			{
-				sym = KW_TRUE;
-			}
-		}
-		else if (lexeme.length() == 3)
-		{
-			if (lexeme.compare("end") == 0)
-			{
-				sym = KW_END;
-			}
-		}
-		else if (lexeme.length() == 2)
-		{
-			if (lexeme.compare("if") == 0)
-			{
-				sym = KW_IF;
-
-			}
-			else if (lexeme.compare("do") == 0)
-			{
-				sym = KW_DO;
-
-			}
-			else if (lexeme.compare("fi") == 0)
-			{
-				sym = KW_FI;
-			}
-			else if (lexeme.compare("od") == 0)
-			{
-				sym = KW_OD;
-			}
-		}
-
-		if (lexeme.length() > 10)
-		{
-			//cout << "\nWarning Identifier " << lexeme << " was resized to ";
-			lexeme.resize(10);
-			//cout << lexeme;
-		}
-
-	//int location = symtable->hash(lexeme);
 
 	if (lexeme.at(0) == '_')
 	{
 		sym = BAD_ID;
-		errorCount++;
+        t = new NameToken(sym, -1, lexeme);
+		return t;
 	}
 
+		t = symtableptr->search(lexeme);
 
-	Token* t = new NameToken(sym, location, lexeme);
-	return t;
+		if(t == nullptr){
+            t = new NameToken(sym, -1, lexeme);
+            symtableptr->insert(dynamic_cast<NameToken*> (t));
+		}
+
+
+		if(t == nullptr)
+			return new SymToken(BAD_SCAN);
+		else{
+			return t;
+		}
 }
 
 //recognizes a set of special characters resolving into a symbol turns it into a token and returns it.
@@ -358,7 +269,7 @@ Token* Scanner::recognizeSpecial()
 	}
 	else if (current == '\\')
 	{
-		sym = SYM_BACKSLASH;
+		sym = SYM_MODULO;
 	}
 	else if (current == '(')
 	{
@@ -376,8 +287,6 @@ Token* Scanner::recognizeSpecial()
 	else
 	{
 		sym = BAD_SYM;
-		errorCount++;
-		//cout << "\nUnrecognizable symbol used on line number (" << lineCount << ")";
 	}
 
 	Token* t = new SymToken(sym);
@@ -408,15 +317,12 @@ Token* Scanner::recognizeNumeral()
 	st >> resultingNumber;
 	if (!st) {
 		if (resultingNumber == std::numeric_limits<int>::max()) {
-			//cout << "\nThe number given was too large, line number(" << lineCount << ")";
 			sym = BAD_NUMERAL;
 		}
 		else if (resultingNumber == std::numeric_limits<int>::min()) {
-			//cout << "\nThe number given was too small, line number(" << lineCount << ")" ;
 			sym = BAD_NUMERAL;
 		}
 		else {
-			//cout << "\nSomething was strange about that number.... line number(" << lineCount << ")";
 			sym = BAD_NUMERAL;
 		}
 	}

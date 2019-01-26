@@ -15,16 +15,12 @@ Administration::Administration(ifstream& in, ofstream &out, Scanner &sc)
 	inputfileptr = &in;
 	scannerptr = &sc;
 
-	lineNo = 1;
+	lineNo = 0;
 	errorCount = 0;
 	string str;
 };
 
-Administration::~Administration(){
-   //delete inputfileptr;
-   //delete outputfileptr;
-   //delete scannerptr;
-}
+Administration::~Administration(){}
 
 int Administration::scan()
 {
@@ -38,39 +34,55 @@ int Administration::scan()
 	Token* tok;
 	int x;
 	while(inputfileptr->good()){
+
 		tok = scannerptr->getToken();
 
 		if(tok != nullptr){
+             x = tok->getSymbolName();
 
-         x = tok->getSymbolName();
-
-         if(x >= 297 && x <= 300){
-            switch(x){
-         case 297:
-            error("BAD_NUMERAL");
-            break;
-         case 298:
-            error("BAD_ID");
-            break;
-         case 299:
-            error("BAD_SYM");
-            break;
-         default:
-            break;
+             if(correctline && x >= 297 && x <= 300){
+                switch(x){
+                    case 297:
+                        error("BAD_NUMERAL");
+                        break;
+                    case 298:
+                        error("BAD_ID");
+                        break;
+                    case 299:
+                        error("BAD_SYM");
+                        break;
+                    case 300: //symbol table full
+                        cout << "\nFATAL ERROR : Symbol table full on line " << ++lineNo << "\n\n";
+                        outputfileptr->close();
+                        return 1;
+                        break;
+                    default:
+                        break;
+                }
+                correctline = false;
             }
-         }
+                *outputfileptr << *tok << "\n";
+                //delete the token pointer if it is not a name
+                if(tok->getSymbolName()  > 273){
+                    delete tok;
+                }
+        }
 
-         cout << Symbol(x) << "\n";
-         *outputfileptr << x << "\n";
-		}
-      while(inputfileptr->peek() == '\n'){
-         NewLine();
-         inputfileptr->get();
-      }      
+        while(inputfileptr->peek() == '\n'){
+            NewLine();
+            inputfileptr->get();
+        }
 	}
 
+    if(errorCount >= MAXERRORS){
+        cout << "Max errors reached. Stopping scanning.\n";
+        return 1;
+    }
+
+
+
 	outputfileptr->close();
-   	
+
 	return 0;
 };
 

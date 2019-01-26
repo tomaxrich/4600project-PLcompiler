@@ -15,15 +15,17 @@ int main(int argc, char* argv[]){
 
    ifstream ifs;
    ofstream ofs;
-   string infile, outfile;
 
-   infile = argv[1];
-   outfile = argv[2];
+   if(argc != 3){
+    cout << "Correct usage : ./plc inputFile outputFile \nExiting\n.";
+    return 0;
+   }
 
-   cout << "input from : " << infile << "  output to : " << outfile << endl;
+   cout << "input from : " << argv[1] << "  output to : " << argv[2] << "\n";
 
-   ofs.open(outfile, ofstream::out);
-   ifs.open(infile, ifstream::in);
+   ofs.open(argv[2], ofstream::out);
+
+   ifs.open(argv[1], ifstream::in);
 
    SymbolTable symtab;
 
@@ -31,12 +33,13 @@ int main(int argc, char* argv[]){
 
    Administration compiler(ifs, ofs, sc);
 
-   compiler.scan();
+   if(compiler.scan() != 0){
+	cout << "\nScanning error, exiting.\n";
+   }
 
-   cout << "Total Line count" << compiler.getLinecount() << '\n';
+   cout << "Total Line count " << compiler.getLinecount() << '\n';
 
-   cout << "done\n";
-
+   cout << "done scanning\n";
 
 return 0;
 }
